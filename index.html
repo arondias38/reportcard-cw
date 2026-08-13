@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LT 성적표 통합 시스템</title>
   
-  <!-- 🟢 탭 아이콘(파비콘) 추가 -->
-  <link rel="icon" href="https://i.imgur.com/tFbBVcO.png">
-  
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" as="image" href="https://i.imgur.com/PQRrCSI.png">
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -49,15 +46,60 @@
     .spinner::after { left: 16px; animation-delay: 0s; }
     @keyframes sine-wave { 0%, 80%, 100% { transform: scaleY(0.4); opacity: 0.5; } 40% { transform: scaleY(1); opacity: 1; } }
 
-    .intro-splash { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #f4f6f9; z-index: 99999; display: flex; justify-content: center; align-items: center; transition: opacity 0.8s ease-in-out, visibility 0.8s; }
+    /* 💡 스플래시 화면 팝업 수정 (텍스트 위로 올리고, 버튼 추가) */
+    .intro-splash { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #f4f6f9; z-index: 9900; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-in-out, visibility 0.8s; }
     .intro-splash.hidden { opacity: 0; visibility: hidden; }
     
     .intro-text { 
-      font-family: 'Pretendard', sans-serif; font-size: 80px; font-weight: 900; letter-spacing: 2px; text-align: center; line-height: 1.2; 
+      position: absolute; top: 22%; /* 💡 중앙에서 약 30% 위로 이동 */
+      width: 100%;
+      font-family: 'Pretendard', sans-serif; font-size: 70px; font-weight: 900; letter-spacing: 1px; text-align: center; line-height: 1.15; 
       background: linear-gradient(90deg, #1366ce, #e83e8c, #1366ce); background-size: 200% auto; 
       color: transparent; -webkit-text-fill-color: transparent; -webkit-background-clip: text; background-clip: text; 
       animation: splash-fade-in 0.4s ease-out, shine 3s linear infinite; 
     }
+
+    /* 💡 스플래시 화면 스위치 토글 버튼 CSS */
+    .splash-toggle-wrap {
+      position: absolute;
+      top: 52%; /* 💡 텍스트와 하단 로고 사이 위치 */
+      width: 360px;
+      height: 64px;
+      background-color: #e9ecef;
+      border-radius: 32px;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+    .splash-toggle-slider {
+      position: absolute;
+      width: calc(50% - 4px);
+      height: 56px;
+      background-color: #1366ce;
+      border-radius: 28px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s;
+      left: 4px;
+      box-shadow: 0 4px 10px rgba(19, 102, 206, 0.3);
+      opacity: 0; /* 초기 숨김, 클릭 시 나타남 */
+      transform: translateX(0);
+    }
+    .splash-btn {
+      flex: 1;
+      height: 100%;
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      font-weight: 800;
+      color: #495057;
+      cursor: pointer;
+      z-index: 2;
+      transition: color 0.3s;
+      outline: none;
+    }
+    .splash-btn.active { color: #fff; }
+
     .intro-logo { position: absolute; bottom: 40px; height: 26px; opacity: 1; }
 
     @keyframes splash-fade-in { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
@@ -120,7 +162,7 @@
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
     .sticky-top-1 { position: sticky; top: 0; z-index: 80; }
-    .sticky-top-2 { position: sticky; top: 28px; z-index: 80; }
+    .sticky-top-2 { position: sticky top: 28px; z-index: 80; }
     .sticky-top-3 { position: sticky; top: 56px; z-index: 80; }
     .sticky-top-4 { position: sticky; top: 84px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
     .admin-sticky-top { position: sticky; top: 0; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
@@ -281,6 +323,7 @@
     .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f1f5f9; border-radius: 12px; font-size: 11px; color: #475569; line-height: 1.6; flex-shrink: 0; border: 1px solid #e2e8f0; }
 
     .batch-row-disabled td { color: #adb5bd !important; background-color: #f8f9fa !important; }
+    /* 💡 90% 수준으로 너비 줄임 (130px -> 117px) */
     .batch-row-disabled select, .batch-row-disabled input[type="number"] { background-color: #e9ecef !important; color: #adb5bd !important; border-color: #e9ecef !important; }
 
     /* 수정된 전광판 CSS */
@@ -347,7 +390,16 @@
 <body>
   
   <div id="introSplash" class="intro-splash">
-    <div class="intro-text">LT REPORT CARD<br>SYSTEM</div>
+    <!-- 💡 스플래시 텍스트 변경 및 위치 조정 -->
+    <div class="intro-text">Student Management<br>System</div>
+    
+    <!-- 💡 텍스트와 로고 사이 라운드 스위치 버튼 추가 -->
+    <div class="splash-toggle-wrap" id="splashToggle">
+      <div class="splash-toggle-slider" id="splashSlider"></div>
+      <button class="splash-btn" onclick="navigateFromSplash('checklist', this)">체크리스트</button>
+      <button class="splash-btn" onclick="navigateFromSplash('lt', this)">LT성적표</button>
+    </div>
+
     <img class="intro-logo" src="https://i.imgur.com/PQRrCSI.png" alt="SG청운학원">
   </div>
 
@@ -782,7 +834,7 @@
       </div>
 
       <div class="admin-marquee-wrapper">
-        <span class="admin-marquee-text">※ 시험 세팅(단원명/배점)을 수정하여 저장할 경우, 이미 성적이 입력된 전체 학생의 총점과 등수가 '자동으로 재계산'되어 업데이트됩니다.</span>
+        <span class="admin-marquee-text">※ 시험 세팅(단원명/배점)을 수정하여 저장시, 이미 입력된 학생들의 성적은 자동 업데이트됩니다.</span>
       </div>
 
       <div style="position: fixed; bottom: 52px; left: 40px; z-index: 150;">
@@ -810,7 +862,7 @@
 
     const courseAbbrMap = { "3가": "초등 3-1", "3나": "초등 3-2", "초3-1": "초등 3-1", "초3-2": "초등 3-2", "4가": "초등 4-1", "4나": "초등 4-2", "초4-1": "초등 4-1", "초4-2": "초등 4-2", "5가": "초등 5-1", "5나": "초등 5-2", "초5-1": "초등 5-1", "초5-2": "초등 5-2", "6가": "초등 6-1", "6나": "초등 6-2", "초6-1": "초등 6-1", "초6-2": "초등 6-2", "7가": "중등 1-1", "7나": "중등 1-2", "중1-1": "중등 1-1", "중1-2": "중등 1-2", "8가": "중등 2-1", "8나": "중등 2-2", "중2-1": "중등 2-1", "중2-2": "중등 2-2", "9가": "중등 3-1", "9나": "중등 3-2", "중3-1": "중등 3-1", "중3-2": "중등 3-2", "10가": "고등 공통수학1", "10나": "고등 공통수학2", "공통수학1": "고등 공통수학1", "공통수학2": "고등 공통수학2", "공수1": "고등 공통수학1", "공수2": "고등 공통수학2", "수학1": "고등 수학1", "수학2": "고등 수학2", "수1": "고등 수학1", "수2": "고등 수학2", "수I": "고등 수학1", "수II": "고등 수학2", "미적": "고등 미적분", "미적1": "고등 미적분1", "미적2": "고등 미적분2", "기하": "고등 기하", "확통": "고등 확률과 통계", "대수": "고등 대수" };
 
-    // 💡 네트워크 통신 자동 재시도 함수 (모든 fetch에 일괄 적용됨)
+    // 💡 네트워크 통신 자동 재시도 함수
     async function fetchWithRetry(url, options, retries = 3, delay = 1500) {
       for (let i = 0; i < retries; i++) {
         try {
@@ -876,9 +928,9 @@
     // 💡 브라우저 창 닫힘/새로고침 방지 (네이티브 팝업 호출)
     window.addEventListener('beforeunload', function (e) {
         if (hasUnsavedChanges) {
-            markAsUnsaved(); // 닫히기 전 최종 상태 한 번 더 임시저장
+            markAsUnsaved(); 
             e.preventDefault();
-            e.returnValue = ''; // 크롬 등에서 네이티브 팝업을 띄우기 위한 필수 설정
+            e.returnValue = ''; 
         }
     });
 
@@ -920,6 +972,32 @@
     function handleError(err) { showLoading(false); let cleanErr = String(err.message || err).replace(/^(Error:\s*)+/i, ''); showAlert("🚫 " + cleanErr); }
     function showConfirmModal(msg, onConfirm, onCancel) { document.getElementById('confirmMessage').innerHTML = msg; document.getElementById('customConfirmModal').style.display = 'flex'; confirmCallback = onConfirm; cancelCallback = onCancel; }
     function closeConfirm(isConfirmed) { document.getElementById('customConfirmModal').style.display = 'none'; if (isConfirmed && confirmCallback) confirmCallback(); else if (!isConfirmed && cancelCallback) cancelCallback(); }
+
+    // 💡 [추가] 스플래시 화면 라운드 버튼 토글 및 페이지 이동 로직
+    function navigateFromSplash(target, btnEl) {
+        const slider = document.getElementById('splashSlider');
+        const btns = document.querySelectorAll('.splash-btn');
+        
+        btns.forEach(btn => btn.classList.remove('active'));
+        btnEl.classList.add('active');
+        slider.style.opacity = '1';
+
+        if (target === 'checklist') {
+            slider.style.transform = 'translateX(0)';
+            setTimeout(() => {
+                window.location.href = 'https://cw-checklist.vercel.app';
+            }, 350); 
+        } else if (target === 'lt') {
+            slider.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                const splash = document.getElementById('introSplash');
+                if (splash) {
+                    splash.classList.add('hidden');
+                    setTimeout(() => splash.style.display = 'none', 800);
+                }
+            }, 350);
+        }
+    }
 
     function resetMainFilters() { 
       document.getElementById('mainCombinedTest').value = ""; 
@@ -997,10 +1075,16 @@
       if(!silent) { if(!isInitialAppLoad) showLoading(true, "시스템 로딩 중..."); }
       fetchWithRetry(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) }).then(async res => { const text = await res.text(); try { return JSON.parse(text); } catch (e) { throw new Error("구글 계정 권한 오류이거나 URL 연결 실패입니다."); } }).then(res => {
         if(!silent) { if(!isInitialAppLoad) showLoading(false); }
-        if(isInitialAppLoad) { setTimeout(() => { const splash = document.getElementById('introSplash'); if (splash) { splash.classList.add('hidden'); setTimeout(() => splash.style.display = 'none', 800); } isInitialAppLoad = false; }, 400); }
+        if(isInitialAppLoad) { 
+            // 💡 [수정] 데이터 로딩 완료 시 스플래시 화면을 자동 종료하지 않도록 변경
+            isInitialAppLoad = false; 
+        }
         if(res.success) { globalData = res.data; populateSettingsAndDropdowns(preserveState); renderSetupStatusTable(); } else { showAlert(res.error || "서버 통신 지연입니다. 다시 시도해 주세요."); }
       }).catch(err => {
-        if(isInitialAppLoad) { const splash = document.getElementById('introSplash'); if (splash) { splash.classList.add('hidden'); setTimeout(() => splash.style.display = 'none', 800); } isInitialAppLoad = false; } else { showLoading(false); } handleError(err);
+        if(isInitialAppLoad) { 
+            isInitialAppLoad = false; 
+        } else { showLoading(false); } 
+        handleError(err);
       });
     }
 
@@ -1527,7 +1611,7 @@
     
     function checkExistingSetup() {
       const tt = getTermAndTest('setup'); const t = tt.term; const ts = tt.test; const l = document.getElementById('setupLevel')?.value; const cr = document.getElementById('setupCourse')?.value; clearAllSetupData();
-      if (!t || !ts || !l || !cr) return; showLoading(true, "기존 세팅 불러오는 중...");
+      if (!t || !ts || !l || !cr) return showLoading(true, "기존 세팅 불러오는 중...");
       fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getExamSetup', term: t, test: ts, level: l, course: cr }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success && res.data) { document.getElementById('setupStartNum').value = res.data.startNum; document.getElementById('setupEndNum').value = res.data.startNum + res.data.totalCount - 1; clearAllSetupData(); renderSetupTable(); res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`); let s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } }); } else { renderSetupTable(); } }).catch(err => { showLoading(false); handleError(err); });
     }
 
