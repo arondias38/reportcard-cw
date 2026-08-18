@@ -744,7 +744,7 @@
           <h4 style="margin: 0 0 6px 0; color: #495057; font-size: 15px;">시험 출제표 (TXT/엑셀) 다중/일괄 업로드</h4>
           <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.4;">
             <b>TXT 파일</b> 또는 <b>EXCEL 파일</b>을 이곳에 끌어다 놓거나 클릭하세요.
-            <span style="display: block; margin-top: 12px;">(파일명 기준으로 <b>[난이도]</b>와 <b>[과정명]</b>이 자동 매핑되며<br>여러 파일 업로드도 가능합니다.)</span>
+            <span style="display: block; margin-top: 12px;">(파일명 기준으로 <b>[난이도]와 [과정명]</b>이 자동 매핑되며 여러 파일 업로드도 가능합니다.)</span>
           </p>
           <input type="file" id="setupFileInput" accept=".txt, .xlsx, .xls" style="display: none;" multiple>
         </div>
@@ -921,7 +921,20 @@
     function showAlert(msg) { let cleanMsg = String(msg || "").replace(/^(Error:\s*)+/i, ''); const modalBox = document.querySelector('#customAlertModal .modal-box'); if (modalBox) modalBox.style.width = '340px'; document.getElementById('modalMessage').innerHTML = `<div style="margin: 10px 0 4px 0; font-size: 14px; color: #333; word-break: keep-all;">${cleanMsg}</div>`; document.getElementById('customAlertModal').style.display = 'flex'; }
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
     function handleError(err) { showLoading(false); let cleanErr = String(err.message || err).replace(/^(Error:\s*)+/i, ''); showAlert("🚫 " + cleanErr); }
-    function showConfirmModal(msg, onConfirm, onCancel) { document.getElementById('confirmMessage').innerHTML = msg; document.getElementById('customConfirmModal').style.display = 'flex'; confirmCallback = onConfirm; cancelCallback = onCancel; }
+    
+    // 💡 팝업 버튼의 텍스트와 색상을 동적으로 변경할 수 있도록 업데이트
+    function showConfirmModal(msg, onConfirm, onCancel, confirmText = '예', cancelText = '아니오', confirmColor = '#28a745') { 
+      document.getElementById('confirmMessage').innerHTML = msg; 
+      const btns = document.getElementById('customConfirmModal').querySelectorAll('.modal-btn');
+      if(btns.length >= 2) {
+          btns[0].innerText = cancelText;
+          btns[1].innerText = confirmText;
+          btns[1].style.backgroundColor = confirmColor;
+      }
+      document.getElementById('customConfirmModal').style.display = 'flex'; 
+      confirmCallback = onConfirm; cancelCallback = onCancel; 
+    }
+    
     function closeConfirm(isConfirmed) { document.getElementById('customConfirmModal').style.display = 'none'; if (isConfirmed && confirmCallback) confirmCallback(); else if (!isConfirmed && cancelCallback) cancelCallback(); }
 
     function resetMainFilters() { 
@@ -1614,15 +1627,52 @@
       fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getExamSetup', term: t, test: ts, level: l, course: cr }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success && res.data) { document.getElementById('setupStartNum').value = res.data.startNum; document.getElementById('setupEndNum').value = res.data.startNum + res.data.totalCount - 1; clearAllSetupData(); renderSetupTable(); res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`); let s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } }); } else { renderSetupTable(); } }).catch(err => { showLoading(false); handleError(err); });
     }
 
+    // 💡 텅 빈 폼 저장 시 '데이터 삭제' 로직 추가
     function saveExamSetup() {
-      const tt = getTermAndTest('setup'); const term = tt.term, test = tt.test, level = document.getElementById('setupLevel').value, course = document.getElementById('setupCourse').value; if(!term || !test || !level || !course) return showAlert("상단 항목을 모두 선택하세요.");
-      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1; const endNum = parseInt(document.getElementById('setupEndNum').value) || 45; const totalCount = endNum - startNum + 1; const items = [];
-      for (let i = 0; i < totalCount; i++) { let qNum = startNum + i; let unitVal = document.getElementById(`unit_${qNum}`).value.trim(); let scoreVal = document.getElementById(`score_${qNum}`).value.trim(); if(!unitVal || !scoreVal) return showAlert(`[${qNum}번] 문항의 단원명 또는 배점이 누락되었습니다.<br>입력을 완료해 주세요.`); items.push({ num: qNum, unit: unitVal, score: parseInt(scoreVal)||0, diff: document.getElementById(`diff_${qNum}`).value }); }
+      const tt = getTermAndTest('setup'); const term = tt.term, test = tt.test, level = document.getElementById('setupLevel').value, course = document.getElementById('setupCourse').value; 
+      if(!term || !test || !level || !course) return showAlert("상단 항목을 모두 선택하세요.");
       
-      let isDuplicate = globalData.setups && globalData.setups.some(s => s.term === term && s.test === test && s.course === (level + " " + course));
+      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1; 
+      const endNum = parseInt(document.getElementById('setupEndNum').value) || 45; 
+      const totalCount = endNum - startNum + 1; 
+      const items = [];
+      let emptyCount = 0;
+
+      for (let i = 0; i < totalCount; i++) { 
+        let qNum = startNum + i; 
+        let unitVal = document.getElementById(`unit_${qNum}`).value.trim(); 
+        let scoreVal = document.getElementById(`score_${qNum}`).value.trim(); 
+        
+        if(!unitVal && !scoreVal) {
+            emptyCount++;
+        } else if(!unitVal || !scoreVal) {
+            return showAlert(`[${qNum}번] 문항의 단원명 또는 배점이 누락되었습니다.<br>입력을 완료해 주세요.`); 
+        } else {
+            items.push({ num: qNum, unit: unitVal, score: parseInt(scoreVal)||0, diff: document.getElementById(`diff_${qNum}`).value }); 
+        }
+      }
+      
+      let combinedCourse = level + " " + course;
+      let isDuplicate = globalData.setups && globalData.setups.some(s => s.term === term && s.test === test && s.course === combinedCourse);
+
+      // 전체 빈칸인 경우 삭제 확인
+      if (emptyCount === totalCount) {
+        if (isDuplicate) {
+          showConfirmModal(`전체 문항의 단원명 또는 배점이 누락되었습니다.<br>[<b>${combinedCourse}</b>] 의 기존에 저장되었던 세팅을 삭제하시겠습니까?`, function() { 
+            executeDeleteExamSetup(term, test, level, course); 
+          }, function(){}, '데이터 삭제', '아니오', '#dc3545');
+          return;
+        } else {
+          return showAlert("입력된 출제표 데이터가 없습니다.");
+        }
+      }
+
+      if (items.length !== totalCount) {
+          return showAlert("일부 문항이 누락되었습니다. 전체 문항을 입력해 주세요.");
+      }
       
       if (isDuplicate) {
-        showConfirmModal(`[<b>${level} ${course}</b>] 과정의 시험 세팅이 이미 존재합니다.<br>덮어쓰시겠습니까?<br><br><span style="color:#dc3545; font-size:12px;">(저장 시, 이미 성적이 입력된 전체 학생의 총점 및 등수는<br>자동으로 <b>업데이트</b>됩니다.)</span>`, function() { 
+        showConfirmModal(`[<b>${combinedCourse}</b>] 과정의 시험 세팅이 이미 존재합니다.<br>덮어쓰시겠습니까?<br><br><span style="color:#dc3545; font-size:12px;">(저장 시, 이미 성적이 입력된 전체 학생의 총점 및 등수는<br>자동으로 <b>업데이트</b>됩니다.)</span>`, function() { 
           executeSaveExamSetup(term, test, level, course, totalCount, startNum, items); 
         }, function(){});
       } else {
@@ -1632,6 +1682,21 @@
 
     function executeSaveExamSetup(term, test, level, course, totalCount, startNum, items) {
       showLoading(true, "저장 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveExamSetup', term, test, level, course, totalCount, startNum, items }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { showSuccessAlert("시험 기본 세팅 정보가 안전하게 저장되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError);
+    }
+    
+    // 💡 개별 시험세팅 삭제 로직 실행
+    function executeDeleteExamSetup(term, test, level, course) {
+      showLoading(true, "시험 세팅 삭제 중..."); 
+      fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'deleteExamSetup', term: term, test: test, level: level, course: course }) })
+      .then(res => res.json()).then(res => { 
+        showLoading(false); 
+        if(res.success) { 
+          showSuccessAlert("기존 시험 세팅이 완벽하게 삭제되었습니다."); 
+          fetchMetadata(true, true); 
+        } else { 
+          showAlert(res.error); 
+        } 
+      }).catch(handleError);
     }
 
     function loadGradesData(afterLoadMsg = null, highlightedStudentName = null) {
