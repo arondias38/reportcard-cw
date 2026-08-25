@@ -193,7 +193,7 @@
     .btn-roster-add-main, .btn-roster-delete-main { height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s; }
     .btn-roster-add-main { background-color: #28a745; }
     .btn-roster-delete-main { background-color: #dc3545; }
-    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 110px; padding: 0 14px; justify-content: center; }
+    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 135px; padding: 0 14px; justify-content: center; }
     .btn-roster-delete-main.active { background-color: #8b0000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
     .btn-roster-add-main .btn-icon-wrap, .btn-roster-delete-main .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.3em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
     .btn-roster-add-main:hover .btn-icon-wrap, .btn-roster-delete-main:hover .btn-icon-wrap, .btn-roster-delete-main.active .btn-icon-wrap { display: none; }
@@ -351,7 +351,7 @@
     <img class="intro-logo" src="https://i.imgur.com/PQRrCSI.png" alt="SG청운학원">
   </div>
 
-  <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycby6ahkOpuTudl1IDBNFefdcSy5H_Os3rvDpVsvPoJZfiB9XIx_qtHNlV8V8Vr1NPx4/exec">
+  <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbyj4PVKoJp-KAyeaJgFlCS6nPP8r5re4luImoOmupUza1xEh3pTztXiY7iyLia9s-OH4g/exec">
 
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
   
@@ -598,7 +598,7 @@
           </table>
           <div class="sticky-fab-bar" id="inputBottomControls" style="display: none;">
             <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>
-            <button class="btn-roster-delete-main" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">학생삭제</span></button>
+            <button class="btn-roster-delete-main" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">학생삭제/복구</span></button>
           </div>
         </div>
 
@@ -1736,7 +1736,7 @@
     }
 
     function executeLoadGradesData(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName) {
-        studentUndoSnapshots = {}; isDeleteMode = false; const delBtn = document.getElementById('toggleDeleteBtn'); if(delBtn) { delBtn.classList.remove('active'); const textWrap = delBtn.querySelector('.btn-text-wrap'); if(textWrap) textWrap.innerText = '학생삭제'; }
+        studentUndoSnapshots = {}; isDeleteMode = false; const delBtn = document.getElementById('toggleDeleteBtn'); if(delBtn) { delBtn.classList.remove('active'); const textWrap = delBtn.querySelector('.btn-text-wrap'); if(textWrap) textWrap.innerText = '학생삭제/복구'; }
         showLoading(true, "데이터 불러오는 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { 
             showLoading(false); 
             if(res.success) { 
@@ -1745,7 +1745,7 @@
               const savedDraft = localStorage.getItem(draftKey);
 
               if (savedDraft) {
-                  showConfirmModal(`이전에 작성하다가 저장하지 않은<br>임시 데이터가 발견되었습니다.<br>복구하시겠습니까?`, function() {
+                  showConfirmModal(`이전에 작성하다가 저장하지 않은<br>임시 데이터가 발견되었습니다.<br><br>복구하시겠습니까?`, function() {
                       let parsedDraft = JSON.parse(savedDraft);
                       currentGlobalOtherScores = res.data.globalOtherScores || []; 
                       renderInputTable(res.data.setupData, parsedDraft.students, parsedDraft.grades);
@@ -1862,7 +1862,7 @@
 
     function toggleStudentDeleteMode() {
       if (currentStudentsCount === 0) return showAlert("불러온 명단이 없습니다. 먼저 명단을 불러와 주세요.");
-      isDeleteMode = !isDeleteMode; const delBtn = document.getElementById('toggleDeleteBtn'); const textWrap = delBtn.querySelector('.btn-text-wrap'); if (isDeleteMode) { delBtn.classList.add('active'); if (textWrap) textWrap.innerText = '삭제종료'; } else { delBtn.classList.remove('active'); if (textWrap) textWrap.innerText = '학생삭제'; }
+      isDeleteMode = !isDeleteMode; const delBtn = document.getElementById('toggleDeleteBtn'); const textWrap = delBtn.querySelector('.btn-text-wrap'); if (isDeleteMode) { delBtn.classList.add('active'); if (textWrap) textWrap.innerText = '삭제/복구종료'; } else { delBtn.classList.remove('active'); if (textWrap) textWrap.innerText = '학생삭제/복구'; }
       const thead = document.getElementById('inputTableHeader'); let htmlTheadFirstRow = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="height:28px; padding:0;"><div style="display:flex; align-items:center; width:100%; height:100%;"><span style="flex:1;"></span><span style="width:60px; min-width:60px; max-width:60px; flex-shrink:0; text-align:center; font-weight:bold; letter-spacing:1px; color:#333;">No.</span></div></th>`;
       let activeIdxToggle = 1;
       currentStudentsList.forEach((st, sIdx) => { let headerContent = '-'; if (!st.isEmpty) { if (st.isDeleted) { if (isDeleteMode) { headerContent = `<button class="student-del-badge" style="background-color:#28a745; width:22px; height:22px;" onclick="restoreDeletedStudent(${sIdx})"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></button>`; } } else { let displayNum = String(activeIdxToggle++).padStart(2, '0'); if (isDeleteMode) { headerContent = `<button class="student-del-badge" onclick="markDeleteStudent('${st.name}')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/></line></svg></button>`; } else { headerContent = displayNum; } } } htmlTheadFirstRow += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${headerContent}</th>`; }); thead.rows[0].innerHTML = htmlTheadFirstRow;
