@@ -752,15 +752,17 @@
             시험 정보 입력 현황
           </div>
           <div style="flex: 1; overflow-y: auto;">
-            <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed;">
               <thead>
                 <tr>
-                  <th class="bg-gray" style="position: sticky; top: 0; z-index: 10; padding: 6px 4px; font-weight: bold; color: #333;">난이도</th>
-                  <th class="bg-gray" style="position: sticky; top: 0; z-index: 10; padding: 6px 4px; font-weight: bold; color: #333;">과정</th>
-                  <th class="bg-gray" style="position: sticky; top: 0; z-index: 10; padding: 6px 4px; font-weight: bold; color: #333;">입력여부</th>
+                  <!-- 수정 부분 2: width 속성을 각각 30%, 30%, 40%로 지정하여 3:3:4 비율 강제 적용 -->
+                  <th class="bg-gray" width="30%" style="position: sticky; top: 0; z-index: 10; padding: 6px 4px; font-weight: bold; color: #333;">난이도</th>
+                  <th class="bg-gray" width="30%" style="position: sticky; top: 0; z-index: 10; padding: 6px 4px; font-weight: bold; color: #333;">과정</th>
+                  <th class="bg-gray" width="40%" style="position: sticky; top: 0; z-index: 10; padding: 6px 4px; font-weight: bold; color: #333;">입력여부</th>
                 </tr>
               </thead>
               <tbody id="setupStatusTableBody">
+                <!-- 이전 대화에서 수정한 텍스트 반영 -->
                 <tr><td colspan="3" style="padding: 20px; color: #888; text-align: center;">※ 상단의 테스트 항목을 선택 후 표시됩니다.</td></tr>
               </tbody>
             </table>
