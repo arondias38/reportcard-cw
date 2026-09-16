@@ -19,7 +19,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <style>
     
-    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
     html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
@@ -225,7 +225,7 @@
     .student-del-badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #dc3545; color: white; border-radius: 50%; font-size: 13px; font-weight: bold; cursor: pointer; border: none; vertical-align: middle; margin: 0 auto; padding: 0; }
     .student-del-badge:hover { background-color: #a71d2a; }
 
-    .report-summary-memo { position: fixed; top: 50%; left: 0; transform: translate(0, -50%); width: 210px; background: #ffffff; border: none; box-shadow: 2px 4px 15px rgba(0,0,0,0.1); z-index: 150; display: none; flex-direction: row; font-size: 13px; color: #495057; pointer-events: auto; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .report-summary-memo { position: fixed; top: calc(50% + 75px); left: 0; transform: translate(0, -50%); width: 210px; background: #ffffff; border: none; box-shadow: 2px 4px 15px rgba(0,0,0,0.1); z-index: 150; display: none; flex-direction: row; font-size: 13px; color: #495057; pointer-events: auto; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .report-summary-memo.collapsed { transform: translate(-185px, -50%); }
     .memo-content-wrap { flex: 1; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; width: 185px; min-width: 185px; }
     .memo-toggle-handle { width: 25px; min-width: 25px; background-color: #ced4da; color: #495057; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: 900; transition: background-color 0.2s; }
