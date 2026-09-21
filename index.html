@@ -283,7 +283,6 @@
     .batch-row-disabled td { color: #adb5bd !important; background-color: #f8f9fa !important; }
     .batch-row-disabled select, .batch-row-disabled input[type="number"] { background-color: #e9ecef !important; color: #adb5bd !important; border-color: #e9ecef !important; }
 
-    /* 수정된 전광판 CSS */
     .admin-marquee-wrapper {
       position: relative;
       width: 100%;
@@ -295,23 +294,22 @@
       background-color: transparent;
       border: none;
       display: flex;
-      align-items: center;
+      align-items: center; /* 원본의 완벽한 중앙 정렬 속성 복구 */
     }
     .admin-marquee-text {
       position: absolute;
+      right: 0; /* 우측 정렬 유지 */
       white-space: nowrap;
       color: #555;       
       font-size: 14px;   
       font-weight: 400;
-      animation: adminMarqueeFlow 40s linear infinite; 
-      left: 100%;
-      margin-top: -11px; 
+      margin-top: -11px; /* 원본의 하단 잘림 방지용 위치값 복구 */
+      opacity: 0; 
+      pointer-events: none;
+      transition: opacity 1s ease-in-out; 
     }
-    @keyframes adminMarqueeFlow {
-      0% { left: 100%; transform: translateX(0); opacity: 1; }
-      87.5% { left: 0; transform: translateX(-100%); opacity: 1; }
-      87.51% { left: 100%; transform: translateX(0); opacity: 0; }
-      100% { left: 100%; transform: translateX(0); opacity: 0; }
+    .admin-marquee-text.active {
+      opacity: 1; 
     }
 
     @media print {
@@ -606,12 +604,10 @@
           상단의 조건을 확인하고 [명단 불러오기]를 눌러주세요.
         </div>
         <div class="admin-marquee-wrapper">
-        <span class="admin-marquee-text" style="animation-duration: 120s; line-height: 22px;">
-          <span style="display: inline-block; margin-right: 100vw;">※ 성적 입력은 O, X 또는 숫자 1, 2로 입력 가능합니다  I  성적 입력 후 반드시 우측 상단의 저장 버튼 (또는 Ctrl+S) 을 눌러 저장해 주세요</span>
-          <span style="display: inline-block; margin-right: 100vw;">※ 성적 입력이 되지 않은 학생은 성적 집계에 포함되지 않습니다  I  시험 미응시 학생의 경우 명단에서 삭제하지 않고 공란으로 두어도 무방합니다</span>
-          <span style="display: inline-block;">※ 성적이 입력되어 저장된 반 및 과정은 선택 목록에 ✔ 가 자동 표시되어 확인할 수 있습니다</span>
-        </span>
-        </div>
+         <span class="admin-marquee-text active">tip. 성적 입력은 O, X 또는 숫자 1, 2로 입력 가능합니다  I  성적 입력 후 반드시 우측 상단의 저장 버튼 (또는 Ctrl+S) 을 눌러 저장해 주세요</span>
+         <span class="admin-marquee-text">tip. 성적 입력이 되지 않은 학생은 성적 집계에 포함되지 않습니다  I  시험 미응시 학생의 경우 명단에서 삭제하지 않고 공란으로 두어도 무방합니다</span>
+         <span class="admin-marquee-text">tip. 성적이 입력되어 저장된 반 및 과정은 선택 목록에 ✔ 가 자동 표시되어 확인할 수 있습니다</span>
+       </div>
       </div>
 
       <div id="view_report" style="display: none;">
@@ -809,7 +805,11 @@
       </div>
 
       <div class="admin-marquee-wrapper">
-        <span class="admin-marquee-text">※ 성적 입력이 진행된 경우, 시험 세팅(단원명/배점)의 수정은 권장하지 않으나 수정된 세팅은 기존 입력된 성적에도 동일하게 업데이트됩니다</span>
+        <!-- 첫 번째 문장에만 active를 남겨둡니다 -->
+        <span class="admin-marquee-text active">tip. 좌측 하단의 변환기를 다운받아 HWP파일을 TXT파일로 손쉽게 변환이 가능합니다</span>
+        <span class="admin-marquee-text">tip. '시험 출제표 (TXT/엑셀) 다중/일괄 업로드 항목'에서는 단일 TXT 또는 여러 개의 TXT 파일 업로드가 가능합니다</span>
+        <span class="admin-marquee-text">tip. '시험 정보 입력 현황'의 특정 학기를 클릭하면 우측 항목에서 세부 항목들의 수정이 가능합니다</span>
+        <span class="admin-marquee-text">tip. 성적 입력이 진행된 경우, 시험 세팅(단원명/배점)의 수정은 권장하지 않으나 수정된 세팅은 기존 입력된 성적에도 동일하게 업데이트됩니다</span>
       </div>
     </div>
   </div>
@@ -1021,7 +1021,40 @@
     }
 
     // 💡 초기화 시 Draft 청소 함수 호출
-    window.onload = function() { cleanupOldDrafts(); fetchMetadata(); renderSetupTable(); };
+    window.onload = function() { cleanupOldDrafts(); fetchMetadata(); renderSetupTable(); startFadeMarquee(); };
+
+    function startFadeMarquee() {
+      const wrappers = document.querySelectorAll('.admin-marquee-wrapper');
+      wrappers.forEach(wrapper => {
+        const items = wrapper.querySelectorAll('.admin-marquee-text');
+        if (items.length === 0) return;
+        
+        // 문장이 1개뿐이면 로테이션 없이 계속 띄워둡니다.
+        if (items.length === 1) {
+          items[0].classList.add('active');
+          return;
+        }
+        
+        let currentIndex = 0;
+        
+        function rotateMarquee() {
+          // 1. 현재 문장 부드럽게 페이드 아웃 (투명화)
+          items[currentIndex].classList.remove('active');
+          
+          // 2. 3초 대기 후 다음 문장으로 교체 (CSS transition 1초 + 암전 2초)
+          setTimeout(() => {
+            currentIndex = (currentIndex + 1) % items.length;
+            items[currentIndex].classList.add('active'); // 다음 문장 페이드 인
+            
+            // 3. 나타난 문장을 15초 동안 보여준 후 다시 로테이션 반복
+            setTimeout(rotateMarquee, 15000);
+          }, 3000); // 3초 암전 대기
+        }
+        
+        // 페이지 로드 후 첫 번째 문장을 15초간 보여준 뒤 로테이션 시작
+        setTimeout(rotateMarquee, 15000);
+      });
+    }
 
     function fetchMetadata(silent = false, preserveState = false) {
       const url = document.getElementById('backendUrl').value.trim(); if (url.includes('YOUR_GAS_ID_HERE')) return;
