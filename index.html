@@ -460,7 +460,9 @@
          <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:30px; border-radius:4px; border:1px solid #ccc;"></select></div>
       </div>
       <div id="dropZone" class="paste-zone" style="padding: 40px 15px; margin-bottom: 20px;">
-         <div style="font-size:32px; margin-bottom:10px;">📂</div>
+         <div style="margin-bottom:10px;">
+           <svg xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 96 960 960" width="40" fill="#28a745"><path d="M450 786v-212l-78 78-37-37 145-145 145 145-37 37-78-78v212h-60ZM140 896q-24 0-42-18t-18-42V256q0-24 18-42t42-18h270l100 100h310q24 0 42 18t18 42v480q0 24-18 42t-42 18H140Zm0-60h680V356H480L380 256H140v580Zm0 0V256v640Z"/></svg>
+         </div>
          <div style="font-size:15px; font-weight:bold; color:#28a745; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
          <div style="font-size:13px; color:#888; line-height: 1.6;">※ '담임명, 반명, 학생명, 학교, 학년' 열을 자동으로 추출합니다.</div>
          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
@@ -741,11 +743,13 @@
 
       <div class="admin-main-grid">
         <div class="paste-zone" id="setupUploadZone" style="flex: 2.5; padding: 24px 12px; margin-bottom: 0; overflow-y: auto; position: relative;">
-          <div style="font-size: 28px; margin-bottom: 8px;">📄</div>
-          <h4 style="margin: 0 0 6px 0; color: #495057; font-size: 15px;">시험 출제표 (TXT/엑셀) 다중/일괄 업로드</h4>
+        <div style="margin-bottom: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 96 960 960" width="32" fill="#495057"><path d="M450 786v-212l-78 78-37-37 145-145 145 145-37 37-78-78v212h-60ZM140 896q-24 0-42-18t-18-42V256q0-24 18-42t42-18h270l100 100h310q24 0 42 18t18 42v480q0 24-18 42t-42 18H140Zm0-60h680V356H480L380 256H140v580Zm0 0V256v640Z"/></svg>
+        </div>
+        <h4 style="margin: 0 0 6px 0; color: #495057; font-size: 15px;">시험 출제표 (TXT/엑셀) 다중/일괄 업로드</h4>
           <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.4;">
             <b>TXT 파일</b> 또는 <b>EXCEL 파일</b>을 이곳에 끌어다 놓거나 클릭하세요.
-            <span style="display: block; margin-top: 12px;">(파일명 기준으로 <b>[난이도]</b>와 <b>[과정명]</b>이 자동 매핑되며<br>여러 파일 업로드도 가능합니다.)</span>
+            <span style="display: block; margin-top: 12px;">(파일명 기준으로 <b>[난이도]</b>와 <b>[과정명]</b>이 자동 인식되며<br>단일 파일 및 여러 파일 업로드도 가능합니다.)</span>
           </p>
           <input type="file" id="setupFileInput" accept=".txt, .xlsx, .xls" style="display: none;" multiple>
           
